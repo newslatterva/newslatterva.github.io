@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050d1c">
+<meta name="description" content="NewsLatterva Position Size Calculator — hitung risiko, ukuran posisi, margin, dan jumlah koin sebelum entry.">
+<title>Position Size Calculator — NewsLatterva</title>
+<style>
+:root{color-scheme:dark;--bg:#040b18;--panel:#071429;--panel2:#091a31;--line:#18365e;--blue:#1684ff;--cyan:#36c5ff;--muted:#91acd5;--text:#f3f7ff;--green:#18e0b1;--red:#ff536a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#0b2850 0,transparent 48%),linear-gradient(145deg,#030916,#06152a 60%,#030916);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:linear-gradient(135deg,transparent 0 49.5%,#1267d7 49.7% 50%,transparent 50.2%);background-size:500px 500px;background-position:right top}
+.wrap{width:min(960px,calc(100% - 28px));margin:auto;position:relative}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 0 18px;border-bottom:1px solid #102846}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}.logo{width:70px;height:58px;display:grid;place-items:center;color:#0b1325;font-weight:1000;font-size:33px;font-style:italic;letter-spacing:-7px; padding-right:6px;background:linear-gradient(135deg,#1d8cff,#0755d9 70%,#47d9ff);clip-path:polygon(19% 15%,43% 0,56% 42%,85% 5%,100% 8%,83% 84%,59% 100%,49% 61%,22% 93%,0 90%);filter:drop-shadow(0 0 16px #087aff66)}
+.brand-name{font-weight:900;font-size:clamp(18px,4vw,29px);letter-spacing:1px;line-height:1.1}.brand-name span{color:var(--cyan)}.tagline{color:#9db9e5;font-size:12px;letter-spacing:3px;margin-top:7px;font-weight:700}
+.pill{border:1px solid #174779;border-radius:28px;padding:13px 17px;color:#48baff;font-weight:800;font-size:12px;letter-spacing:.7px;white-space:nowrap;background:#06152a}
+.intro{padding:25px 0 22px}.eyebrow{font-size:14px;letter-spacing:4px;color:#248dff;font-weight:900}.intro h1{font-size:clamp(32px,6vw,54px);line-height:1.07;margin:10px 0 14px;letter-spacing:-1.5px}.intro h1 span{color:#218cff}.intro p{font-size:clamp(16px,2.5vw,22px);line-height:1.5;color:#91b2e5;margin:0;max-width:760px}
+.calculator{border:1px solid #2165ae;border-radius:18px;padding:20px;background:linear-gradient(145deg,#07162bdf,#050e1edb);box-shadow:0 0 35px #006eff0b,inset 0 0 30px #0b3d7a12}
+.section-head{display:flex;align-items:center;gap:12px;margin:2px 0 20px;color:#39a8ff;font-weight:900;letter-spacing:2px;font-size:15px}.section-head:after{content:"";height:1px;background:#234b7a;flex:1}
+.direction{display:flex;background:#030b19;border:1px solid #19385d;border-radius:13px;padding:3px;min-width:230px}.direction button{flex:1;border:0;background:transparent;color:#8da9d6;border-radius:9px;padding:10px;font-weight:800;font-size:15px;cursor:pointer}.direction button.active.long{background:linear-gradient(110deg,#006e68,#087b74);box-shadow:inset 0 0 0 1px #08d7b1;color:#4dffdb}.direction button.active.short{background:linear-gradient(110deg,#702238,#8c263f);box-shadow:inset 0 0 0 1px #ff5370;color:#ff9aaa}
+.head-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.fields{border:1px solid #17365b;border-radius:16px;padding:18px;background:#030d1d99}
+.field{margin-bottom:23px}.field:last-child{margin-bottom:0}.field-label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;font-weight:650;color:#e1ebff}.field-label .value{font-weight:900;color:#39aaff;font-variant-numeric:tabular-nums;white-space:nowrap}.field-label small{color:#7e9bc7;font-weight:500}.field input[type=number]{width:100%;background:#040d1c;border:1px solid #1a3b64;border-radius:12px;color:#fff;padding:14px 15px;font-size:20px;font-weight:750;outline:none}.field input:focus{border-color:#2b9cff;box-shadow:0 0 0 3px #138cff20}
+.range-line{display:flex;align-items:center;gap:12px}.range-line input{width:100%;accent-color:#268cff;cursor:pointer;height:8px}.range-line output{min-width:48px;text-align:right;color:#44aaff;font-weight:900}
+.range-labels{display:flex;justify-content:space-between;color:#6686b4;font-size:11px;margin-top:7px}
+.entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.entry-grid .field{margin:0}.entry-grid .field-label{font-size:13px}.entry-grid input{font-size:16px!important}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.metric{border:1px solid #1a3a61;border-radius:14px;padding:15px;background:linear-gradient(135deg,#07162a,#040d1b);min-width:0}.metric-top{display:flex;align-items:center;gap:10px;color:#94b4e5;font-size:13px}.metric-icon{display:grid;place-items:center;width:28px;height:28px;color:#75adff;font-size:22px}.metric-value{font-size:clamp(21px,4vw,28px);font-weight:900;letter-spacing:-.6px;margin:5px 0 2px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.metric-sub{font-size:12px;color:#8caad8;line-height:1.45}.green{color:var(--green)}.blue{color:#39a4ff}.white{color:#edf5ff}.orange{color:#ffb65d}.red{color:#ff5b72}
+.liquidation{margin:17px 3px 14px}.liq-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;margin-bottom:9px}.liq-title strong{color:#ff6379;font-size:19px}.meter{height:10px;border-radius:99px;background:#142744;overflow:hidden}.meter span{display:block;height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,#0de0ac,#f6c34b,#ff4c64);transition:width .2s}
+.note{border:1px solid #28456a;background:#071529;border-radius:12px;padding:12px 14px;color:#91add6;font-size:12px;line-height:1.55;margin-top:14px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.btn{padding:14px 12px;border-radius:13px;border:1px solid #20466f;background:#07162b;color:#d4e6ff;font-size:15px;font-weight:850;cursor:pointer;transition:transform .15s,filter .15s}.btn:hover{filter:brightness(1.15)}.btn:active{transform:scale(.99)}.btn.primary{border:0;background:linear-gradient(110deg,#168fff,#1354ff);box-shadow:0 8px 22px #006dff2a;color:white}.btn:focus-visible{outline:2px solid white;outline-offset:3px}
+.contact{margin-top:20px;border:1px solid #1b3e68;border-radius:17px;padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;background:#061327}.contact-left{display:flex;align-items:center;gap:13px}.telegram{width:54px;height:54px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#35c9ff,#0876df);font-size:25px}.contact-title{font-weight:800}.contact-sub{color:#9bb8e5;font-size:13px;margin-top:3px}.contact-handle{color:#45baff;font-weight:900;margin-top:3px}.contact a{color:#d7eaff;text-decoration:none;border:1px solid #248aff;border-radius:28px;padding:12px 15px;white-space:nowrap;font-size:13px;font-weight:800}.footer{text-align:center;padding:26px 0 32px;color:#8ba9d7;font-size:11px;letter-spacing:2px}.footer b{color:#4bb6ff;font-size:13px;letter-spacing:1px}.footer .line{display:flex;align-items:center;justify-content:center;gap:16px}.footer .line:before,.footer .line:after{content:"";height:1px;width:min(18vw,160px);background:#23456f}.footer p{margin:10px 0 0;font-size:10px;letter-spacing:2.5px}
+@media(max-width:620px){.wrap{width:min(100% - 20px,960px)}.topbar{padding-top:17px}.logo{width:52px;height:46px;font-size:27px}.brand{gap:10px}.tagline{font-size:9px;letter-spacing:2px}.pill{padding:10px;font-size:10px}.intro{padding-top:22px}.eyebrow{font-size:12px;letter-spacing:3px}.calculator{padding:13px;border-radius:15px}.head-row{align-items:flex-start;flex-direction:column}.direction{width:100%}.fields{padding:14px}.field-label{font-size:14px}.entry-grid{gap:10px}.entry-grid .field-label{align-items:flex-start;flex-direction:column;gap:4px}.results{gap:9px}.metric{padding:12px}.metric-top{font-size:12px;gap:6px}.metric-icon{width:23px;font-size:18px}.metric-value{font-size:22px}.actions{gap:8px}.btn{font-size:13px;padding:13px 8px}.contact{padding:14px;align-items:flex-start;flex-direction:column}.contact a{align-self:stretch;text-align:center}.contact-left{gap:10px}.telegram{width:44px;height:44px}.contact-sub{font-size:12px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="topbar">
+  <div class="brand"><div class="logo" aria-hidden="true">N</div><div><div class="brand-name">NEWS<span>LATTERVA</span></div><div class="tagline">TRADE · ANALYZE · GROW</div></div></div>
+  <div class="pill">↗ &nbsp; TRADING TOOLS</div>
+</header>
+<main>
+<section class="intro">
+  <div class="eyebrow">POSITION SIZE CALCULATOR</div>
+  <h1>Position Size <span>Calculator</span></h1>
+  <p>Atur risiko, tentukan jarak stop loss, dan hitung ukuran posisi futures sebelum entry.</p>
+</section>
+<section class="calculator" aria-label="Kalkulator position size">
+  <div class="head-row"><div class="section-head" style="margin:0;flex:1">01 / TRADE SETUP</div>
+    <div class="direction" role="group" aria-label="Arah posisi"><button id="longBtn" class="active long" type="button" aria-pressed="true">Long</button><button id="shortBtn" type="button" aria-pressed="false">Short</button></div>
+  </div>
+  <div class="fields">
+    <div class="field">
+      <label class="field-label" for="capital"><span>▣ &nbsp; Modal trading (USD)</span></label>
+      <input id="capital" type="number" min="0.01" step="any" value="100" inputmode="decimal">
+    </div>
+    <div class="field">
+      <div class="field-label"><label for="risk">♢ &nbsp; Risiko per posisi</label><output class="value" id="riskOut" for="risk">1%</output></div>
+      <div class="range-line"><input id="risk" type="range" min="1" max="100" step="1" value="1"><output id="riskOut2">1%</output></div>
+      <div class="range-labels"><span>1% (konservatif)</span><span>100% (ekstrem)</span></div>
+    </div>
+    <div class="field">
+      <div class="field-label"><label for="sl">⊙ &nbsp; Jarak Stop Loss</label><output class="value" id="slOut">5%</output></div>
+      <div class="range-line"><input id="sl" type="range" min="0.5" max="10" step="0.5" value="5"><output id="slOut2">5%</output></div>
+      <div class="range-labels"><span>0.5%</span><span>10%</span></div>
+    </div>
+    <div class="field">
+      <div class="field-label"><label for="lev">⚒ &nbsp; Leverage</label><output class="value" id="levOut">10×</output></div>
+      <div class="range-line"><input id="lev" type="range" min="1" max="100" step="1" value="10"><output id="levOut2">10×</output></div>
+      <div class="range-labels"><span>1×</span><span>100×</span></div>
+    </div>
+    <div class="entry-grid">
+      <div class="field"><label class="field-label" for="entry">Harga entry (USD) <small>untuk hitung jumlah koin</small></label><input id="entry" type="number" min="0" step="any" value="100" inputmode="decimal"></div>
+      <div class="field"><label class="field-label" for="maint">Margin maintenance <small>estimasi likuidasi</small></label><input id="maint" type="number" min="0" max="10" step="0.1" value="0.5" inputmode="decimal"></div>
+    </div>
+  </div>
+  <div class="results" aria-live="polite" aria-atomic="true">
+    <div class="metric"><div class="metric-top"><span class="metric-icon">♢</span>Risiko nominal</div><div class="metric-value green" id="riskAmount">$1.00</div><div class="metric-sub" id="riskSub">1% dari modal</div></div>
+    <div class="metric"><div class="metric-top"><span class="metric-icon">◉</span>Position size</div><div class="metric-value blue" id="position">$20.00</div><div class="metric-sub">Nilai total posisi (notional)</div></div>
+    <div class="metric"><div class="metric-top"><span class="metric-icon">▣</span>Margin terpakai</div><div class="metric-value white" id="margin">$2.00</div><div class="metric-sub" id="marginSub">Posisi ÷ leverage</div></div>
+    <div class="metric"><div class="metric-top"><span class="metric-icon">◉</span>Jumlah koin</div><div class="metric-value white" id="coins">0.200000</div><div class="metric-sub">Position size ÷ harga entry</div></div>
+  </div>
+  <div class="liquidation"><div class="liq-title"><span>☠ &nbsp; Perkiraan harga likuidasi <small style="color:#7d9bc7">(sangat kasar)</small></span><strong id="liq">$90.50</strong></div><div class="meter"><span id="meter"></span></div></div>
+  <div class="note" id="warning">Rumus: risiko nominal ÷ jarak SL (%) = nilai posisi. Margin = nilai posisi ÷ leverage. Belum termasuk fee, funding, slippage, tier margin, dan aturan exchange. Risiko 100% sangat ekstrem dan tidak disarankan.</div>
+  <div class="actions"><button class="btn primary" id="copyBtn" type="button">▣ &nbsp; Salin hasil</button><button class="btn" id="resetBtn" type="button">↻ &nbsp; Reset contoh</button></div>
+</section>
+<section class="contact"><div class="contact-left"><div class="telegram" aria-hidden="true">➤</div><div><div class="contact-title">Ada pertanyaan?</div><div class="contact-sub">Langsung aja chat ke Telegram saya</div><div class="contact-handle">@Eva_Edith</div></div></div><a href="https://t.me/Eva_Edith" target="_blank" rel="noopener noreferrer">✈ &nbsp; Chat di Telegram &nbsp; ›</a></section>
+</main>
+<footer class="footer"><div class="line"><b>◢ NEWSLATTERVA</b></div><p>BETTER ANALYSIS · SMARTER TRADES</p></footer>
+</div>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const ids = ['capital','risk','sl','lev','entry','maint'];
+let direction = 'long';
+const money = n => Number.isFinite(n) ? n.toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+const num = (n,d=6) => Number.isFinite(n) ? n.toLocaleString('en-US',{maximumFractionDigits:d}) : '—';
+function calculate(){
+  const capital = Math.max(0, Number($('capital').value) || 0);
+  const riskPct = Number($('risk').value);
+  const slPct = Number($('sl').value);
+  const lev = Number($('lev').value);
+  const entry = Math.max(0, Number($('entry').value) || 0);
+  const maintPct = Math.max(0, Math.min(10, Number($('maint').value) || 0));
+  $('riskOut').textContent = $('riskOut2').textContent = riskPct + '%';
+  $('slOut').textContent = $('slOut2').textContent = slPct + '%';
+  $('levOut').textContent = $('levOut2').textContent = lev + '×';
+  const riskAmount = capital * riskPct / 100;
+  const position = slPct > 0 ? riskAmount / (slPct / 100) : 0;
+  const margin = lev > 0 ? position / lev : 0;
+  const coins = entry > 0 ? position / entry : 0;
+  // Simplified estimate; real liquidation depends on exchange, maintenance tier and fees.
+  const liqDistance = Math.max(0, (100 / Math.max(1,lev)) - maintPct);
+  const liqPrice = entry > 0 ? entry * (direction === 'long' ? 1 - liqDistance/100 : 1 + liqDistance/100) : NaN;
+  $('riskAmount').textContent = money(riskAmount);
+  $('riskSub').textContent = `${riskPct}% dari modal ${money(capital)}`;
+  $('position').textContent = money(position);
+  $('margin').textContent = money(margin);
+  $('marginSub').textContent = `Posisi ÷ ${lev}× leverage`;
+  $('coins').textContent = num(coins,8);
+  $('liq').textContent = Number.isFinite(liqPrice) ? money(liqPrice) : 'Masukkan entry';
+  $('meter').style.width = Math.min(100, Math.max(3, liqDistance)) + '%';
+  $('warning').textContent = margin > capital ? `Perhatian: estimasi margin ${money(margin)} melebihi modal ${money(capital)}. Ukuran posisi ini tidak dapat dibuka dengan modal tersebut pada leverage yang dipilih. ` : '';
+  $('warning').textContent += `Rumus: risiko nominal ÷ jarak SL (%) = nilai posisi. Margin = nilai posisi ÷ leverage. Estimasi likuidasi hanya ilustrasi; aturan exchange, maintenance margin, fee, funding, slippage, dan isolated/cross margin dapat mengubahnya. Risiko ${riskPct}% ${riskPct >= 10 ? 'tergolong sangat tinggi.' : 'dihitung dari modal.'}`;
+}
+function setDirection(next){
+ direction=next;
+ $('longBtn').className=next==='long'?'active long':'';
+ $('shortBtn').className=next==='short'?'active short':'';
+ $('longBtn').setAttribute('aria-pressed',String(next==='long'));
+ $('shortBtn').setAttribute('aria-pressed',String(next==='short'));
+ calculate();
+}
+ids.forEach(id => $(id).addEventListener('input', calculate));
+$('longBtn').addEventListener('click',()=>setDirection('long'));
+$('shortBtn').addEventListener('click',()=>setDirection('short'));
+$('resetBtn').addEventListener('click',()=>{
+ $('capital').value=100;$('risk').value=1;$('sl').value=5;$('lev').value=10;$('entry').value=100;$('maint').value=0.5;setDirection('long');calculate();
+});
+$('copyBtn').addEventListener('click',async()=>{
+ const text = `NEWSLATTERVA — POSITION SIZE CALCULATOR\nArah: ${direction.toUpperCase()}\nModal: ${money(Number($('capital').value)||0)}\nRisiko: ${$('risk').value}% (${ $('riskAmount').textContent })\nStop loss: ${$('sl').value}%\nLeverage: ${$('lev').value}×\nHarga entry: ${$('entry').value || '-'} USD\nPosition size: ${$('position').textContent}\nMargin: ${$('margin').textContent}\nJumlah koin: ${$('coins').textContent}\nEstimasi likuidasi: ${$('liq').textContent}\nCatatan: estimasi bukan harga likuidasi exchange yang dijamin.`;
+ try { await navigator.clipboard.writeText(text); $('copyBtn').textContent='✓ Hasil tersalin'; }
+ catch(e){ const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();$('copyBtn').textContent='✓ Hasil tersalin'; }
+ setTimeout(()=>$('copyBtn').textContent='▣  Salin hasil',1800);
+});
+calculate();
+})();
+</script>
+</body>
+</html>
